@@ -36,6 +36,9 @@ public class APIMStatMigrationClient implements MigrationClient {
         log.info("----------------Started migrating Resource usage summary table------------------");
         DatabaseManager.migrateResourceUsageSummaryTable();
         log.info("----------------Completed migrating Resource usage summary table------------------");
+        log.info("----------------Started migrating Version usage summary table------------------");
+        DatabaseManager.migrateVersionUsageSummaryTable();
+        log.info("----------------Completed migrating Version usage summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }

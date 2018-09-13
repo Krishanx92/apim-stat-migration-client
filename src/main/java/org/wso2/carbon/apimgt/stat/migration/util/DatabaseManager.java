@@ -97,7 +97,6 @@ public class DatabaseManager {
             closeDatabaseLinks(resultSetRetrieved, statement1, con1);
             closeDatabaseLinks(null, statement2, con2);
         }
-
     }
 
     public static void migrateResourceUsageSummaryTable() throws APIMStatMigrationException {
@@ -182,7 +181,64 @@ public class DatabaseManager {
             closeDatabaseLinks(null, statement2, con2);
             closeDatabaseLinks(resultSetFromAMDB, statement3, con3);
         }
+    }
 
+    public static void migrateVersionUsageSummaryTable() throws APIMStatMigrationException {
+        Connection con1 = null;
+        Connection con2 = null;
+        PreparedStatement statement1 = null;
+        PreparedStatement statement2 = null;
+        ResultSet resultSetRetrieved = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_VERSION_USAGE_SUMMARY;
+            String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_VERSION_USAGE_AGG
+                    + "_DAYS(apiName, apiVersion, apiCreator, apiContext, AGG_COUNT, apiHostname, AGG_TIMESTAMP, "
+                    + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, gatewayType, label, regionalID) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+            statement1 = con1.prepareStatement(retrieveQuery);
+            statement2 = con2.prepareStatement(insertQuery);
+            resultSetRetrieved = statement1.executeQuery();
+            while (resultSetRetrieved.next()) {
+                String api = resultSetRetrieved.getString("api");
+                String version = resultSetRetrieved.getString("version");
+                String apiPublisher = resultSetRetrieved.getString("apiPublisher");
+                String context = resultSetRetrieved.getString("context");
+                long total_request_count = resultSetRetrieved.getLong("total_request_count");
+                String hostName = resultSetRetrieved.getString("hostName");
+                int year = resultSetRetrieved.getInt("year");
+                int month = resultSetRetrieved.getInt("month");
+                int day = resultSetRetrieved.getInt("day");
+                String time = resultSetRetrieved.getString("time");
+                statement2.setString(1, api);
+                statement2.setString(2, version);
+                statement2.setString(3, apiPublisher);
+                statement2.setString(4, context);
+                statement2.setLong(5, total_request_count);
+                statement2.setString(6, hostName);
+                String dayInString = year + "-" + month + "-" + day;
+                statement2.setLong(7, getTimestampOfDay(dayInString));
+                statement2.setLong(8, getTimestamp(time));
+                statement2.setLong(9, getTimestamp(time)); //same as AGG_EVENT_TIMESTAMP
+                statement2.setString(10, "");
+                statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } finally {
+            closeDatabaseLinks(resultSetRetrieved, statement1, con1);
+            closeDatabaseLinks(null, statement2, con2);
+        }
     }
 
     /**
