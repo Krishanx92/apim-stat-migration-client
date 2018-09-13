@@ -53,4 +53,6 @@ public class APIMStatMigrationConstants {
     //Other constants
     public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm";
     public static final String TIMESTAMP_DAY_PATTERN = "yyyy-M-dd";
+    public static final String TIMESTAMP_HOUR_PATTERN = "yyyy-M-dd HH";
+    public static final String TIMESTAMP_MINUTE_PATTERN = "yyyy-M-dd HH:mm";
 }

@@ -54,6 +54,12 @@ public class APIMStatMigrationClient implements MigrationClient {
         log.info("----------------Started migrating Execution time day summary table------------------");
         DatabaseManager.migrateExecutionTimeDaySummaryTable();
         log.info("----------------Completed migrating Execution time day summary table------------------");
+        log.info("----------------Started migrating Execution time hour summary table------------------");
+        DatabaseManager.migrateExecutionTimeHourSummaryTable();
+        log.info("----------------Completed migrating Execution time hour summary table------------------");
+        log.info("----------------Started migrating Execution time minute summary table------------------");
+        DatabaseManager.migrateExecutionTimeMinuteSummaryTable();
+        log.info("----------------Completed migrating Execution time minute summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }
