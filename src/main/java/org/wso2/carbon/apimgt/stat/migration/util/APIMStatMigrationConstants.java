@@ -36,6 +36,9 @@ public class APIMStatMigrationConstants {
     public static final String API_FAULT_SUMMARY = "API_FAULT_SUMMARY";
     public static final String API_FAULTY_INVOCATION_AGG= "ApiFaultyInvocationAgg";
 
+    public static final String API_REQ_USR_BROW_SUMMARY = "API_REQ_USER_BROW_SUMMARY";
+    public static final String API_USER_BROWSER_AGG = "ApiUserBrowserAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 

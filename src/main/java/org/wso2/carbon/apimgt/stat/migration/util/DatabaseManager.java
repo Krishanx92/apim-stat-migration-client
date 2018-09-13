@@ -370,6 +370,66 @@ public class DatabaseManager {
         }
     }
 
+    public static void migrateUserBrowserSummaryTable() throws APIMStatMigrationException {
+        Connection con1 = null;
+        Connection con2 = null;
+        PreparedStatement statement1 = null;
+        PreparedStatement statement2 = null;
+        ResultSet resultSetRetrieved = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_USR_BROW_SUMMARY;
+            String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_BROWSER_AGG
+                    + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, AGG_COUNT, AGG_TIMESTAMP, "
+                    + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, operatingSystem, browser, apiContext, gatewayType,"
+                    + " label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+            statement1 = con1.prepareStatement(retrieveQuery);
+            statement2 = con2.prepareStatement(insertQuery);
+            resultSetRetrieved = statement1.executeQuery();
+            while (resultSetRetrieved.next()) {
+                String api = resultSetRetrieved.getString("api");
+                String version = resultSetRetrieved.getString("version");
+                String apiPublisher = resultSetRetrieved.getString("apiPublisher");
+                String tenantDomain = resultSetRetrieved.getString("tenantDomain");
+                long total_request_count = resultSetRetrieved.getLong("total_request_count");
+                int year = resultSetRetrieved.getInt("year");
+                int month = resultSetRetrieved.getInt("month");
+                int day = resultSetRetrieved.getInt("day");
+                long time = resultSetRetrieved.getLong("requestTime");
+                String os = resultSetRetrieved.getString("os");
+                String browser = resultSetRetrieved.getString("browser");
+                statement2.setString(1, api);
+                statement2.setString(2, version);
+                statement2.setString(3, apiPublisher);
+                statement2.setString(4, tenantDomain);
+                statement2.setLong(5, total_request_count);
+                String dayInString = year + "-" + month + "-" + day;
+                statement2.setLong(6, getTimestampOfDay(dayInString));
+                statement2.setLong(7, time);
+                statement2.setLong(8, time);
+                statement2.setString(9, os);
+                statement2.setString(10, browser);
+                statement2.setString(11, "");
+                statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } finally {
+            closeDatabaseLinks(resultSetRetrieved, statement1, con1);
+            closeDatabaseLinks(null, statement2, con2);
+        }
+    }
+
     /**
      * This method is used to close the ResultSet, PreparedStatement and Connection after getting data from the DB
      * This is called if a "PreparedStatement" is used to fetch results from the DB
