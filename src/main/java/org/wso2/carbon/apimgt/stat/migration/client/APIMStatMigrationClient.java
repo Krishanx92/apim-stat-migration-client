@@ -30,7 +30,12 @@ public class APIMStatMigrationClient implements MigrationClient {
     @Override
     public void statDbMigration() throws APIMStatMigrationException {
         log.info("Started stat db migration......");
+        log.info("----------------Started migrating Destination Summary table------------------");
         DatabaseManager.migrateDestinationSummaryTable();
+        log.info("----------------Completed migrating Destination Summary table------------------");
+        log.info("----------------Started migrating Resource usage summary table------------------");
+        DatabaseManager.migrateResourceUsageSummaryTable();
+        log.info("----------------Completed migrating Resource usage summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }

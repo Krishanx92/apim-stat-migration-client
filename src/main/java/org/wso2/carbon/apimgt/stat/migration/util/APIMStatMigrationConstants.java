@@ -24,6 +24,9 @@ public class APIMStatMigrationConstants {
     public static final String API_DESTINATION_SUMMARY = "API_DESTINATION_SUMMARY";
     public static final String API_PER_DESTINATION_AGG = "ApiPerDestinationAgg";
 
+    public static final String API_RESOURCE_USAGE_SUMMARY = "API_Resource_USAGE_SUMMARY";
+    public static final String API_RESOURCE_PATH_AGG = "ApiResourcePathPerAppAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 
