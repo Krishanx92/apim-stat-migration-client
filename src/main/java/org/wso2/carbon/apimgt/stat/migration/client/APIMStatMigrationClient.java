@@ -51,6 +51,9 @@ public class APIMStatMigrationClient implements MigrationClient {
         log.info("----------------Started migrating Geo location summary table------------------");
         DatabaseManager.migrateGeoLocationSummaryTable();
         log.info("----------------Completed migrating Geo location summary table------------------");
+        log.info("----------------Started migrating Execution time day summary table------------------");
+        DatabaseManager.migrateExecutionTimeDaySummaryTable();
+        log.info("----------------Completed migrating Execution time day summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }

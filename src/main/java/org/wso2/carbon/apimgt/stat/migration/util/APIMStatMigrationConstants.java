@@ -42,6 +42,11 @@ public class APIMStatMigrationConstants {
     public static final String API_REQ_GEO_LOC_SUMMARY = "API_REQ_GEO_LOC_SUMMARY";
     public static final String API_GEO_LOCATION_AGG = "GeoLocationAgg";
 
+    public static final String API_EXE_TME_DAY_SUMMARY = "API_EXE_TME_DAY_SUMMARY";
+    public static final String API_EXE_TIME_HOUR_SUMMARY = "API_EXE_TIME_HOUR_SUMMARY";
+    public static final String API_EXE_TIME_MIN_SUMMARY = "API_EXE_TIME_MIN_SUMMARY";
+    public static final String API_EXEC_TIME_AGG = "ApiExecutionTimeAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 
