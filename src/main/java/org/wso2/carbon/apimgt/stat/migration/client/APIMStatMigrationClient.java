@@ -48,6 +48,9 @@ public class APIMStatMigrationClient implements MigrationClient {
         log.info("----------------Started migrating User browser summary table------------------");
         DatabaseManager.migrateUserBrowserSummaryTable();
         log.info("----------------Completed migrating User browser summary table------------------");
+        log.info("----------------Started migrating Geo location summary table------------------");
+        DatabaseManager.migrateGeoLocationSummaryTable();
+        log.info("----------------Completed migrating Geo location summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }
