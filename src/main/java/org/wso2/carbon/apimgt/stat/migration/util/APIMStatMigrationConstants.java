@@ -33,6 +33,9 @@ public class APIMStatMigrationConstants {
     public static final String API_LAST_ACCESS_TIME_SUMMARY = "API_LAST_ACCESS_TIME_SUMMARY";
     public static final String API_LAST_ACCESS_SUMMARY_AGG = "ApiLastAccessSummary";
 
+    public static final String API_FAULT_SUMMARY = "API_FAULT_SUMMARY";
+    public static final String API_FAULTY_INVOCATION_AGG= "ApiFaultyInvocationAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 
