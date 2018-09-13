@@ -28,14 +28,31 @@ import org.wso2.carbon.apimgt.stat.migration.client.APIMStatMigrationClient;
 import org.wso2.carbon.apimgt.stat.migration.client.MigrationClient;
 import org.wso2.carbon.apimgt.stat.migration.util.APIMStatMigrationConstants;
 import org.wso2.carbon.apimgt.stat.migration.util.DatabaseManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.core.service.RealmService;
 
 /**
- * @scr.component name="org.wso2.carbon.apimgt.stat.migration.client" immediate="true"
+ * @scr.component name="org.wso2.carbon.apimgt.access.control.migration.client" immediate="true"
+ * @scr.reference name="realm.service"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="registry.service"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="1..1"
+ * policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
+ * @scr.reference name="registry.core.dscomponent"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="1..1"
+ * policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
+ * @scr.reference name="tenant.registryloader" interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader" cardinality="1..1"
+ * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  * @scr.reference name="apim.configuration" interface="org.wso2.carbon.apimgt.impl.APIManagerConfigurationService" cardinality="1..1"
  * policy="dynamic" bind="setApiManagerConfig" unbind="unsetApiManagerConfig"
  */
 
+@SuppressWarnings("unused")
 public class APIMStatMigrationServiceComponent {
+
     private static final Log log = LogFactory.getLog(APIMStatMigrationServiceComponent.class);
 
     /**
@@ -54,7 +71,7 @@ public class APIMStatMigrationServiceComponent {
         boolean isStatMigration = Boolean.parseBoolean(System.getProperty(APIMStatMigrationConstants.ARG_MIGRATE_STATS));
 
         try {
-            log.info("Migrating to WSO2 API Manager 2.6.0 stats DB");
+            log.info("----------------Migrating to WSO2 API Manager 2.6.0 stats DB--------------------------------------------");
 
             // Create a thread and wait till the APIManager DBUtils is initialized
 
@@ -67,7 +84,7 @@ public class APIMStatMigrationServiceComponent {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("API Manager 2.6.0 Stat migration successfully completed");
+                log.debug("---------------------------API Manager 2.6.0 Stat migration successfully completed-----------------------");
             }
         } catch (APIMStatMigrationException e) {
             log.error("API Management  exception occurred while migrating", e);
@@ -87,12 +104,81 @@ public class APIMStatMigrationServiceComponent {
     }
 
     /**
+     * Method to set registry service.
+     *
+     * @param registryService service to get tenant data.
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting RegistryService for WSO2 API Manager migration");
+        }
+        ServiceHolder.setRegistryService(registryService);
+    }
+
+    /**
+     * Method to unset registry service.
+     *
+     * @param registryService service to get registry data.
+     */
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Registry service");
+        }
+        ServiceHolder.setRegistryService(null);
+    }
+
+    /**
+     * Method to set realm service.
+     *
+     * @param realmService service to get tenant data.
+     */
+    protected void setRealmService(RealmService realmService) {
+        log.debug("Setting RealmService for WSO2 API Manager migration");
+        ServiceHolder.setRealmService(realmService);
+        IdentityTenantUtil.setRealmService(realmService);
+    }
+
+    /**
+     * Method to unset realm service.
+     *
+     * @param realmService service to get tenant data.
+     */
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Realm service");
+        }
+        ServiceHolder.setRealmService(null);
+        IdentityTenantUtil.setRealmService(null);
+    }
+
+    /**
+     * Method to set tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        log.debug("Setting TenantRegistryLoader for WSO2 API Manager migration");
+        ServiceHolder.setTenantRegLoader(tenantRegLoader);
+    }
+
+    /**
+     * Method to unset tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        log.debug("Unset Tenant Registry Loader");
+        ServiceHolder.setTenantRegLoader(null);
+    }
+
+    /**
      * Method to set API Manager configuration
      *
      * @param apiManagerConfig api manager configuration
      */
     protected void setApiManagerConfig(APIManagerConfigurationService apiManagerConfig) {
         log.info("Setting APIManager configuration");
+        ServiceHolder.setAPIManagerConfigurationService(apiManagerConfig);
     }
 
     /**
@@ -102,6 +188,6 @@ public class APIMStatMigrationServiceComponent {
      */
     protected void unsetApiManagerConfig(APIManagerConfigurationService apiManagerConfig) {
         log.info("Un-setting APIManager configuration");
+        ServiceHolder.setAPIManagerConfigurationService(null);
     }
-
 }

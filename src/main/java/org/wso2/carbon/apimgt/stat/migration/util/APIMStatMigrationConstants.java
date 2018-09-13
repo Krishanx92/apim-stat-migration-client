@@ -26,4 +26,8 @@ public class APIMStatMigrationConstants {
 
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
+
+    //Other constants
+    public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm";
+    public static final String TIMESTAMP_DAY_PATTERN = "yyyy-M-dd";
 }

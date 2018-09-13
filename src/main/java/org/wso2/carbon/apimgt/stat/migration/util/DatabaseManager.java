@@ -22,6 +22,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.wso2.carbon.apimgt.stat.migration.APIMStatMigrationException;
 
 import java.sql.Connection;
@@ -31,11 +34,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DatabaseManager {
-
-    private static volatile DataSource previous_dataSource = null;
-    private static volatile DataSource new_dataSource = null;
-    private static final String PREVIOUS_DATA_SOURCE_NAME = "jdbc/WSO2AM_STATS_DB"; // Take this config from the migration-config of this client
-    private static final String NEW_DATA_SOURCE_NAME = "jdbc/APIM_ANALYTICS_DB";
 
     private static final Log log = LogFactory.getLog(DatabaseManager.class);
 
@@ -64,12 +62,13 @@ public class DatabaseManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/geolocationstatdb?autoReconnect=true", "root", "tharika@123");
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_DESTINATION_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_PER_DESTINATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, destination, AGG_COUNT, apiHostname, "
-                    + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP) VALUES(?,?,?,?,?,?,?,?,?)";
+                    + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'SYNAPSE','synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -92,11 +91,18 @@ public class DatabaseManager {
                 statement2.setString(5, destination);
                 statement2.setInt(6, total_request_count);
                 statement2.setString(7, hostName);
-                statement2.setInt(8, year);
-                statement2.setString(9, time);
+                String dayInString = year + "-" + month + "-" + day;
+                statement2.setLong(8, getTimestampOfDay(dayInString));
+                statement2.setLong(9, getTimestamp(time));
+                statement2.setLong(10, getTimestamp(time)); //same as AGG_EVENT_TIMESTAMP
+                statement2.executeUpdate();
             }
         } catch (SQLException e) {
             String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
             log.error(msg, e);
             throw new APIMStatMigrationException(msg, e);
         } finally {
@@ -140,5 +146,23 @@ public class DatabaseManager {
                 log.error("Error occurred while closing the JDBC database connection.", e);
             }
         }
+    }
+
+    private static long getTimestamp(String date) {
+        DateTimeFormatter formatter = DateTimeFormat
+                .forPattern(APIMStatMigrationConstants.TIMESTAMP_PATTERN);
+        DateTime dateTime = formatter.parseDateTime(date);
+        System.out.println("Time String from old database : " + date);
+        System.out.println("Time in long : " + dateTime.getMillis());
+        return dateTime.getMillis();
+    }
+
+    private static long getTimestampOfDay(String date) {
+        DateTimeFormatter formatter = DateTimeFormat
+                .forPattern(APIMStatMigrationConstants.TIMESTAMP_DAY_PATTERN);
+        DateTime dateTime = formatter.parseDateTime(date);
+        System.out.println("Day time String from old database : " + date);
+        System.out.println("Time in long : " + dateTime.getMillis());
+        return dateTime.getMillis();
     }
 }
