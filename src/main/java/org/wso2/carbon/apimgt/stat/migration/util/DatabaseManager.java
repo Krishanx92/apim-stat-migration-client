@@ -241,6 +241,56 @@ public class DatabaseManager {
         }
     }
 
+    public static void migrateLastAccessTimeSummaryTable() throws APIMStatMigrationException {
+        Connection con1 = null;
+        Connection con2 = null;
+        PreparedStatement statement1 = null;
+        PreparedStatement statement2 = null;
+        ResultSet resultSetRetrieved = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_LAST_ACCESS_TIME_SUMMARY;
+            String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_LAST_ACCESS_SUMMARY_AGG
+                    + "(apiCreatorTenantDomain, apiCreator, apiName, apiVersion, applicationOwner, apiContext, lastAccessTime, apiHostname, gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+            statement1 = con1.prepareStatement(retrieveQuery);
+            statement2 = con2.prepareStatement(insertQuery);
+            resultSetRetrieved = statement1.executeQuery();
+            while (resultSetRetrieved.next()) {
+                String tenantDomain = resultSetRetrieved.getString("tenantDomain");
+                String apiPublisher = resultSetRetrieved.getString("apiPublisher");
+                String api = resultSetRetrieved.getString("api");
+                String version = resultSetRetrieved.getString("version");
+                String userId = resultSetRetrieved.getString("userId");
+                String context = resultSetRetrieved.getString("context");
+                long max_request_time = resultSetRetrieved.getLong("max_request_time");
+                statement2.setString(1, tenantDomain);
+                statement2.setString(2, apiPublisher);
+                statement2.setString(3, api);
+                statement2.setString(4, version);
+                statement2.setString(5, userId);
+                statement2.setString(6, context);
+                statement2.setLong(7, max_request_time);
+                statement2.setString(8, "");
+                statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } finally {
+            closeDatabaseLinks(resultSetRetrieved, statement1, con1);
+            closeDatabaseLinks(null, statement2, con2);
+        }
+    }
+
     /**
      * This method is used to close the ResultSet, PreparedStatement and Connection after getting data from the DB
      * This is called if a "PreparedStatement" is used to fetch results from the DB
@@ -281,16 +331,12 @@ public class DatabaseManager {
     private static long getTimestamp(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
-        System.out.println("Time String from old database : " + date);
-        System.out.println("Time in long : " + dateTime.getMillis());
         return dateTime.getMillis();
     }
 
     private static long getTimestampOfDay(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_DAY_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
-        System.out.println("Day time String from old database : " + date);
-        System.out.println("Time in long : " + dateTime.getMillis());
         return dateTime.getMillis();
     }
 }

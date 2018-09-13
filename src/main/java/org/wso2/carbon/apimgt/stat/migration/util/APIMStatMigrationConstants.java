@@ -30,6 +30,9 @@ public class APIMStatMigrationConstants {
     public static final String API_VERSION_USAGE_SUMMARY = "API_VERSION_USAGE_SUMMARY";
     public static final String API_VERSION_USAGE_AGG = "ApiVersionPerAppAgg";
 
+    public static final String API_LAST_ACCESS_TIME_SUMMARY = "API_LAST_ACCESS_TIME_SUMMARY";
+    public static final String API_LAST_ACCESS_SUMMARY_AGG = "ApiLastAccessSummary";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 
