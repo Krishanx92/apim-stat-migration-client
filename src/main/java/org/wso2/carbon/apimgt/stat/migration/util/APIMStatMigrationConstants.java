@@ -47,6 +47,10 @@ public class APIMStatMigrationConstants {
     public static final String API_EXE_TIME_MIN_SUMMARY = "API_EXE_TIME_MIN_SUMMARY";
     public static final String API_EXEC_TIME_AGG = "ApiExecutionTimeAgg";
 
+    public static final String API_THROTTLED_OUT_SUMMARY = "API_THROTTLED_OUT_SUMMARY";
+    public static final String API_THROTTLED_OUT_AGG = "ApiThrottledOutAgg";
+    public static final String APIM_REQ_COUNT_AGG = "APIM_ReqCountAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 

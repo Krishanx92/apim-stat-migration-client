@@ -199,7 +199,7 @@ public class DatabaseManager {
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_VERSION_USAGE_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, AGG_COUNT, apiHostname, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, gatewayType, label, regionalID) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+                    + "VALUES(?,?,?,?,?,?,?,?,?,'','SYNAPSE','Synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -224,7 +224,6 @@ public class DatabaseManager {
                 statement2.setLong(7, getTimestampOfDay(dayInString));
                 statement2.setLong(8, getTimestamp(time));
                 statement2.setLong(9, getTimestamp(time)); //same as AGG_EVENT_TIMESTAMP
-                statement2.setString(10, "");
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -386,7 +385,7 @@ public class DatabaseManager {
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_BROWSER_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, AGG_COUNT, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, operatingSystem, browser, apiContext, gatewayType,"
-                    + " label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+                    + " label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'','SYNAPSE','Synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -413,7 +412,6 @@ public class DatabaseManager {
                 statement2.setLong(8, time);
                 statement2.setString(9, os);
                 statement2.setString(10, browser);
-                statement2.setString(11, "");
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -445,7 +443,7 @@ public class DatabaseManager {
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_GEO_LOC_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_GEO_LOCATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, totalCount, AGG_TIMESTAMP, "
-                    + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, country, city, apiContext, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,'default')";
+                    + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, country, city, apiContext, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -472,7 +470,6 @@ public class DatabaseManager {
                 statement2.setLong(8, time);
                 statement2.setString(9, country);
                 statement2.setString(10, city); //check if ok to be null
-                statement2.setString(11, "");
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -507,7 +504,7 @@ public class DatabaseManager {
                     + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
                     + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
-                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'default')";
+                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -544,9 +541,6 @@ public class DatabaseManager {
                 statement2.setLong(13, getTimestampOfDay(dayInString));
                 statement2.setLong(14, time);
                 statement2.setLong(15, time);
-                statement2.setString(16, "");
-                statement2.setString(17, "");
-                statement2.setString(18, "");
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -581,7 +575,7 @@ public class DatabaseManager {
                     + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
                     + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
-                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'default')";
+                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -619,9 +613,6 @@ public class DatabaseManager {
                 statement2.setLong(13, getTimestampOfHour(hourInString));
                 statement2.setLong(14, time);
                 statement2.setLong(15, time);
-                statement2.setString(16, "");
-                statement2.setString(17, "");
-                statement2.setString(18, "");
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
@@ -656,7 +647,7 @@ public class DatabaseManager {
                     + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
                     + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
-                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'default')";
+                    + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -695,9 +686,129 @@ public class DatabaseManager {
                 statement2.setLong(13, getTimestampOfMinute(minuteInString));
                 statement2.setLong(14, time);
                 statement2.setLong(15, time);
-                statement2.setString(16, "");
-                statement2.setString(17, "");
-                statement2.setString(18, "");
+                statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } finally {
+            closeDatabaseLinks(resultSetRetrieved, statement1, con1);
+            closeDatabaseLinks(null, statement2, con2);
+        }
+    }
+
+    public static void migrateThrottledOutSummaryTable() throws APIMStatMigrationException {
+        Connection con1 = null;
+        Connection con2 = null;
+        PreparedStatement statement1 = null;
+        PreparedStatement statement2 = null;
+        ResultSet resultSetRetrieved = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY;
+            String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_THROTTLED_OUT_AGG
+                    + "_DAYS(apiName, apiVersion, apiContext, apiCreator, applicationName, apiCreatorTenantDomain, AGG_TIMESTAMP, "
+                    + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, AGG_COUNT, throttledOutReason, applicationId, hostname, "
+                    + "gatewayType) VALUES(?,?,?,?,?,?,?,?,?,?,?,'','','SYNAPSE')";
+            statement1 = con1.prepareStatement(retrieveQuery);
+            statement2 = con2.prepareStatement(insertQuery);
+            resultSetRetrieved = statement1.executeQuery();
+            while (resultSetRetrieved.next()) {
+                String api = resultSetRetrieved.getString("api");
+                String api_version = resultSetRetrieved.getString("api_version");
+                String context = resultSetRetrieved.getString("context");
+                String apiPublisher = resultSetRetrieved.getString("apiPublisher");
+                String applicationName = resultSetRetrieved.getString("applicationName");
+                String tenantDomain = resultSetRetrieved.getString("tenantDomain");
+                long throttleout_count = resultSetRetrieved.getLong("throttleout_count");
+                String throttledOutReason = resultSetRetrieved.getString("throttledOutReason");
+                int year = resultSetRetrieved.getInt("year");
+                int month = resultSetRetrieved.getInt("month");
+                int day = resultSetRetrieved.getInt("day");
+                String time = resultSetRetrieved.getString("time");
+                statement2.setString(1, api);
+                String version = api_version.split(":v")[1];
+                statement2.setString(2, version);
+                statement2.setString(3, context);
+                statement2.setString(4, apiPublisher);
+                statement2.setString(5, applicationName);
+                statement2.setString(6, tenantDomain);
+                String dayInString = year + "-" + month + "-" + day;
+                statement2.setLong(7, getTimestampOfDay(dayInString));
+                statement2.setLong(8, getTimestamp(time));
+                statement2.setLong(9, getTimestamp(time));
+                statement2.setLong(10, throttleout_count);
+                statement2.setString(11, throttledOutReason);
+                statement2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String msg = "Error occurred while connecting to and querying from the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } catch (Exception e) {
+            String msg = "Generic error occurred while connecting to the database";
+            log.error(msg, e);
+            throw new APIMStatMigrationException(msg, e);
+        } finally {
+            closeDatabaseLinks(resultSetRetrieved, statement1, con1);
+            closeDatabaseLinks(null, statement2, con2);
+        }
+    }
+
+    public static void migrateThrottledOutRequestCountSummaryTable() throws APIMStatMigrationException {
+        Connection con1 = null;
+        Connection con2 = null;
+        PreparedStatement statement1 = null;
+        PreparedStatement statement2 = null;
+        ResultSet resultSetRetrieved = null;
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            con1 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
+            con2 = DriverManager
+                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            String retrieveQuery = "SELECT api, api_version, apiPublisher, applicationName, tenantDomain, "
+                    + "sum(throttleout_count) as throttledCount, sum(success_request_count) as successCount, year, month, day, time FROM " +
+                    APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY + " group by api, api_version, apiPublisher, "
+                    + "tenantDomain, applicationName, year, month, day, week, time";
+            String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.APIM_REQ_COUNT_AGG
+                    + "_DAYS(apiName, apiVersion, apiCreator, applicationName, apiCreatorTenantDomain, AGG_TIMESTAMP, "
+                    + "AGG_EVENT_TIMESTAMP, AGG_SUM_successCount, AGG_SUM_throttleCount) VALUES(?,?,?,?,?,?,?,?,?)";
+            statement1 = con1.prepareStatement(retrieveQuery);
+            statement2 = con2.prepareStatement(insertQuery);
+            resultSetRetrieved = statement1.executeQuery();
+            while (resultSetRetrieved.next()) {
+                String api = resultSetRetrieved.getString("api");
+                String api_version = resultSetRetrieved.getString("api_version");
+                String apiPublisher = resultSetRetrieved.getString("apiPublisher");
+                String applicationName = resultSetRetrieved.getString("applicationName");
+                String tenantDomain = resultSetRetrieved.getString("tenantDomain");
+                long throttledCount = resultSetRetrieved.getLong("throttledCount");
+                long successCount = resultSetRetrieved.getLong("successCount");
+                int year = resultSetRetrieved.getInt("year");
+                int month = resultSetRetrieved.getInt("month");
+                int day = resultSetRetrieved.getInt("day");
+                String time = resultSetRetrieved.getString("time");
+                statement2.setString(1, api);
+                String version = api_version.split(":v")[1];
+                statement2.setString(2, version);
+                statement2.setString(3, apiPublisher);
+                statement2.setString(4, applicationName);
+                statement2.setString(5, tenantDomain);
+                String dayInString = year + "-" + month + "-" + day;
+                statement2.setLong(6, getTimestampOfDay(dayInString));
+                statement2.setLong(7, getTimestamp(time));
+                statement2.setLong(8, successCount);
+                statement2.setLong(9, throttledCount);
                 statement2.executeUpdate();
             }
         } catch (SQLException e) {
