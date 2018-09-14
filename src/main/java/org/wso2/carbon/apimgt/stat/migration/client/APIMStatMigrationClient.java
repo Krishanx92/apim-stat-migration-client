@@ -66,6 +66,9 @@ public class APIMStatMigrationClient implements MigrationClient {
         log.info("----------------Started migrating Throttled out request count summary table------------------");
         DatabaseManager.migrateThrottledOutRequestCountSummaryTable();
         log.info("----------------Completed migrating Throttled out request count summary table------------------");
+        log.info("----------------Started migrating Request summary table------------------");
+        DatabaseManager.migrateRequestSummaryTable();
+        log.info("----------------Completed migrating Request summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
 }

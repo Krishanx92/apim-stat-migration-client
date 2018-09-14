@@ -51,6 +51,10 @@ public class APIMStatMigrationConstants {
     public static final String API_THROTTLED_OUT_AGG = "ApiThrottledOutAgg";
     public static final String APIM_REQ_COUNT_AGG = "APIM_ReqCountAgg";
 
+    public static final String API_REQUEST_SUMMARY = "API_REQUEST_SUMMARY";
+    public static final String API_RESPONSE_SUMMARY = "API_RESPONSE_SUMMARY";
+    public static final String API_USER_PER_APP_AGG = "ApiUserPerAppAgg";
+
     //Osgi constants
     public static final String ARG_MIGRATE_STATS = "migrateStats";
 
