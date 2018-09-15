@@ -641,7 +641,7 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_HOUR_SUMMARY;
+            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_MIN_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_MINUTES(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
                     + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMedLat, "
