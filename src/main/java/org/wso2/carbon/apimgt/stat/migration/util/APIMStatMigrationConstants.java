@@ -25,7 +25,7 @@ public class APIMStatMigrationConstants {
     public static final String API_PER_DESTINATION_AGG = "ApiPerDestinationAgg";
 
     public static final String API_RESOURCE_USAGE_SUMMARY = "API_Resource_USAGE_SUMMARY";
-    public static final String API_RESOURCE_PATH_AGG = "ApiResourcePathPerAppAgg";
+    public static final String API_RESOURCE_PATH_AGG = "ApiResPathPerApp";
 
     public static final String API_VERSION_USAGE_SUMMARY = "API_VERSION_USAGE_SUMMARY";
     public static final String API_VERSION_USAGE_AGG = "ApiVersionPerAppAgg";
@@ -45,14 +45,13 @@ public class APIMStatMigrationConstants {
     public static final String API_EXE_TME_DAY_SUMMARY = "API_EXE_TME_DAY_SUMMARY";
     public static final String API_EXE_TIME_HOUR_SUMMARY = "API_EXE_TIME_HOUR_SUMMARY";
     public static final String API_EXE_TIME_MIN_SUMMARY = "API_EXE_TIME_MIN_SUMMARY";
-    public static final String API_EXEC_TIME_AGG = "ApiExecutionTimeAgg";
+    public static final String API_EXEC_TIME_AGG = "ApiExeTime";
 
     public static final String API_THROTTLED_OUT_SUMMARY = "API_THROTTLED_OUT_SUMMARY";
     public static final String API_THROTTLED_OUT_AGG = "ApiThrottledOutAgg";
     public static final String APIM_REQ_COUNT_AGG = "APIM_ReqCountAgg";
 
     public static final String API_REQUEST_SUMMARY = "API_REQUEST_SUMMARY";
-    public static final String API_RESPONSE_SUMMARY = "API_RESPONSE_SUMMARY";
     public static final String API_USER_PER_APP_AGG = "ApiUserPerAppAgg";
 
     //Osgi constants

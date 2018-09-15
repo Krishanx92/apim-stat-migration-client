@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.apimgt.stat.migration.util;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
@@ -53,10 +51,13 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_DESTINATION_SUMMARY;
+            String retrieveQuery = "SELECT api, version, apiPublisher, context, destination, sum(total_request_count), "
+                    + "hostName, year, month, day, time FROM " + APIMStatMigrationConstants.API_DESTINATION_SUMMARY
+                    + " group by context, hostName, destination, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_PER_DESTINATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, destination, AGG_COUNT, apiHostname, "
-                    + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+                    + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, gatewayType, label, regionalID) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
             resultSetRetrieved = statement1.executeQuery();
@@ -116,14 +117,17 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
             con3 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
-            String consumerkeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_RESOURCE_USAGE_SUMMARY;
+            String consumerKeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
+            String retrieveQuery = "SELECT api, version, apiPublisher, consumerKey, resourcePath, context, method, "
+                    + "sum(total_request_count), hostName, year, month, day, time FROM " + APIMStatMigrationConstants.API_RESOURCE_USAGE_SUMMARY
+                    + " group by context, hostName, consumerKey, resourcePath, method, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_RESOURCE_PATH_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiResourceTemplate, apiContext, apiMethod, AGG_COUNT, "
-                    + "apiHostname, AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
+                    + "apiHostname, AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, "
+                    + "gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'SYNAPSE','Synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
-            statement3 = con3.prepareStatement(consumerkeyMappingQuery);
+            statement3 = con3.prepareStatement(consumerKeyMappingQuery);
             resultSetRetrieved = statement1.executeQuery();
             while (resultSetRetrieved.next()) {
                 String api = resultSetRetrieved.getString("api");
@@ -195,7 +199,9 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_VERSION_USAGE_SUMMARY;
+            String retrieveQuery = "SELECT api, version, apiPublisher, context, sum(total_request_count), hostName, "
+                    + "year, month, day, time FROM " + APIMStatMigrationConstants.API_VERSION_USAGE_SUMMARY
+                    + " group by context, hostName, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_VERSION_USAGE_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, AGG_COUNT, apiHostname, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, gatewayType, label, regionalID) "
@@ -252,7 +258,8 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_LAST_ACCESS_TIME_SUMMARY;
+            String retrieveQuery = "SELECT tenantDomain, apiPublisher, api, version, userId, context, max_request_time FROM "
+                    + APIMStatMigrationConstants.API_LAST_ACCESS_TIME_SUMMARY + " group by api, apiPublisher, tenantDomain";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_LAST_ACCESS_SUMMARY_AGG
                     + "(apiCreatorTenantDomain, apiCreator, apiName, apiVersion, applicationOwner, apiContext, lastAccessTime) VALUES(?,?,?,?,?,?,?)";
             statement1 = con1.prepareStatement(retrieveQuery);
@@ -306,14 +313,16 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
             con3 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
-            String consumerkeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_FAULT_SUMMARY;
+            String consumerKeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
+            String retrieveQuery = "SELECT api, version, apiPublisher, consumerKey, context, sum(total_fault_count), "
+                    + "hostName, year, month, day, time FROM " + APIMStatMigrationConstants.API_FAULT_SUMMARY
+                    + " group by context, consumerKey, hostName, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_FAULTY_INVOCATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, applicationId, apiContext, AGG_COUNT, hostname, "
                     + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
-            statement3 = con3.prepareStatement(consumerkeyMappingQuery);
+            statement3 = con3.prepareStatement(consumerKeyMappingQuery);
             resultSetRetrieved = statement1.executeQuery();
             while (resultSetRetrieved.next()) {
                 String api = resultSetRetrieved.getString("api");
@@ -381,7 +390,9 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_USR_BROW_SUMMARY;
+            String retrieveQuery = "SELECT api, version, apiPublisher, tenantDomain, sum(total_request_count), "
+                    + "year, month, day, requestTime, os, browser FROM " + APIMStatMigrationConstants.API_REQ_USR_BROW_SUMMARY
+                    + " group by apiPublisher, tenantDomain, os, browser, year, month, day, requestTime";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_BROWSER_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, AGG_COUNT, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, operatingSystem, browser, apiContext, gatewayType,"
@@ -440,7 +451,9 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_GEO_LOC_SUMMARY;
+            String retrieveQuery = "SELECT api, version, apiPublisher, tenantDomain, sum(total_request_count), "
+                    + "year, month, day, requestTime, country, city FROM " + APIMStatMigrationConstants.API_REQ_GEO_LOC_SUMMARY
+                    + " group by country, city, year, month, day, requestTime";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_GEO_LOCATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, totalCount, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, country, city, apiContext, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,'','default')";
@@ -498,11 +511,14 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TME_DAY_SUMMARY;
+            String retrieveQuery = "SELECT api, version, tenantDomain, apiPublisher, sum(apiResponseTime), context, "
+                    + "sum(securityLatency), sum(throttlingLatency), sum(requestMediationLatency), sum(responseMediationLatency), "
+                    + "sum(backendLatency), sum(otherLatency), year, month, day, time FROM "
+                    + APIMStatMigrationConstants.API_EXE_TME_DAY_SUMMARY + " group by context, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_DAYS(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
-                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
-                    + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
+                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMedLat, "
+                    + "AGG_SUM_responseMedLat, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
                     + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
@@ -569,11 +585,14 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_HOUR_SUMMARY;
+            String retrieveQuery = "SELECT api, version, tenantDomain, apiPublisher, sum(apiResponseTime), context, "
+                    + "sum(securityLatency), sum(throttlingLatency), sum(requestMediationLatency), sum(responseMediationLatency), "
+                    + "sum(backendLatency), sum(otherLatency), year, month, day, hour, time FROM "
+                    + APIMStatMigrationConstants.API_EXE_TIME_HOUR_SUMMARY + " group by context, year, month, day, hour, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_HOURS(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
-                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
-                    + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
+                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMedLat, "
+                    + "AGG_SUM_responseMedLat, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
                     + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
@@ -641,11 +660,14 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_MIN_SUMMARY;
+            String retrieveQuery = "SELECT api, version, tenantDomain, apiPublisher, sum(apiResponseTime), context, "
+                    + "sum(securityLatency), sum(throttlingLatency), sum(requestMediationLatency), sum(responseMediationLatency), "
+                    + "sum(backendLatency), sum(otherLatency), year, month, day, hour, minutes, time FROM "
+                    + APIMStatMigrationConstants.API_EXE_TIME_HOUR_SUMMARY + " group by context, year, month, day, hour, minutes, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_MINUTES(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
-                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMediationLatency, "
-                    + "AGG_SUM_responseMediationLatency, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
+                    + "AGG_SUM_securityLatency, AGG_SUM_throttlingLatency, AGG_SUM_requestMedLat, "
+                    + "AGG_SUM_responseMedLat, AGG_SUM_backendLatency, AGG_SUM_otherLatency, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, apiHostname, apiResourceTemplate, apiMethod, "
                     + "regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'','','','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
@@ -714,7 +736,9 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
             con2 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY;
+            String retrieveQuery = "SELECT api, api_version, context, apiPublisher, applicationName, tenantDomain, "
+                    + "sum(throttleout_count), throttledOutReason, year, month, day, time FROM " + APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY
+                    + " group by context, throttledOutReason, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_THROTTLED_OUT_AGG
                     + "_DAYS(apiName, apiVersion, apiContext, apiCreator, applicationName, apiCreatorTenantDomain, AGG_TIMESTAMP, "
                     + "AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, AGG_COUNT, throttledOutReason, applicationId, hostname, "
@@ -842,15 +866,17 @@ public class DatabaseManager {
                     .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
             con3 = DriverManager
                     .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
-            String consumerkeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
-            String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQUEST_SUMMARY;
+            String consumerKeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
+            String retrieveQuery = "SELECT api, version, apiPublisher, consumerKey, userId, context, "
+                    + "sum(total_request_count), hostName, year, month, day, time FROM " + APIMStatMigrationConstants.API_REQUEST_SUMMARY
+                    + " group by context, hostName, consumerKey, userId, year, month, day, time";
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_PER_APP_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, username, apiContext, AGG_COUNT, apiHostname, "
                     + "AGG_TIMESTAMP, AGG_EVENT_TIMESTAMP, AGG_LAST_EVENT_TIMESTAMP, applicationId, userTenantDomain, "
                     + "gatewayType, label, regionalID) VALUES(?,?,?,?,?,?,?,?,?,?,?,'','SYNAPSE','Synapse','default')";
             statement1 = con1.prepareStatement(retrieveQuery);
             statement2 = con2.prepareStatement(insertQuery);
-            statement3 = con3.prepareStatement(consumerkeyMappingQuery);
+            statement3 = con3.prepareStatement(consumerKeyMappingQuery);
             resultSetRetrieved = statement1.executeQuery();
             while (resultSetRetrieved.next()) {
                 String api = resultSetRetrieved.getString("api");
