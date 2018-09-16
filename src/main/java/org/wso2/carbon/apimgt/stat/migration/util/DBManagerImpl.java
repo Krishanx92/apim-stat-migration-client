@@ -25,8 +25,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.wso2.carbon.apimgt.stat.migration.APIMStatMigrationException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,10 +38,54 @@ public class DBManagerImpl implements DBManager {
 
     private static final Log log = LogFactory.getLog(DBManagerImpl.class);
 
-    public void initialize() throws APIMStatMigrationException {
+    private static volatile DataSource oldStatsDataSource = null;
+    private static volatile DataSource newStatsDataSource = null;
+    private static volatile DataSource apimDataSource = null;
+    private static final String OLD_STATS_DATA_SOURCE_NAME = "jdbc/WSO2AM_STATS_DB";
+    private static final String NEW_STATS_DATA_SOURCE_NAME = "jdbc/APIM_ANALYTICS_DB";
+    private static final String APIM_DATA_SOURCE_NAME = "jdbc/WSO2AM_DB";
 
+    /**
+     * This method initializes the datasources required for the migration of the stats dbs
+     *
+     * @throws APIMStatMigrationException when there is an error looking up the datasources
+     */
+    @Override
+    public void initialize() throws APIMStatMigrationException {
+        try {
+            Context ctx = new InitialContext();
+            oldStatsDataSource = (DataSource) ctx.lookup(OLD_STATS_DATA_SOURCE_NAME);
+        } catch (NamingException e) {
+            String msg = "Error while looking up the data source: " + OLD_STATS_DATA_SOURCE_NAME;
+            log.error(msg);
+            throw new APIMStatMigrationException(msg);
+        }
+
+        try {
+            Context ctx = new InitialContext();
+            newStatsDataSource = (DataSource) ctx.lookup(NEW_STATS_DATA_SOURCE_NAME);
+        } catch (NamingException e) {
+            String msg = "Error while looking up the data source: " + NEW_STATS_DATA_SOURCE_NAME;
+            log.error(msg);
+            throw new APIMStatMigrationException(msg);
+        }
+
+        try {
+            Context ctx = new InitialContext();
+            apimDataSource = (DataSource) ctx.lookup(APIM_DATA_SOURCE_NAME);
+        } catch (NamingException e) {
+            String msg = "Error while looking up the data source: " + APIM_DATA_SOURCE_NAME;
+            log.error(msg);
+            throw new APIMStatMigrationException(msg);
+        }
     }
 
+    /**
+     * This method migrates the data related to the API_DESTINATION_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateDestinationSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -46,11 +93,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_DESTINATION_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_PER_DESTINATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, destination, AGG_COUNT, apiHostname, "
@@ -98,6 +142,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_RESOURCE_USAGE_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateResourceUsageSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -108,13 +158,9 @@ public class DBManagerImpl implements DBManager {
         ResultSet resultSetRetrieved = null;
         ResultSet resultSetFromAMDB = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            con3 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
+            con3 = apimDataSource.getConnection();
             String consumerKeyMappingQuery = "select APPLICATION_ID from AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_RESOURCE_USAGE_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_RESOURCE_PATH_AGG
@@ -183,6 +229,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_VERSION_USAGE_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateVersionUsageSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -190,11 +242,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_VERSION_USAGE_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_VERSION_USAGE_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiContext, AGG_COUNT, apiHostname, AGG_TIMESTAMP, "
@@ -240,6 +289,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_LAST_ACCESS_TIME_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateLastAccessTimeSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -247,11 +302,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_LAST_ACCESS_TIME_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_LAST_ACCESS_SUMMARY_AGG
                     + "(apiCreatorTenantDomain, apiCreator, apiName, apiVersion, applicationOwner, apiContext, lastAccessTime) VALUES(?,?,?,?,?,?,?)";
@@ -289,6 +341,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_FAULT_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateFaultSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -299,13 +357,9 @@ public class DBManagerImpl implements DBManager {
         ResultSet resultSetRetrieved = null;
         ResultSet resultSetFromAMDB = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            con3 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
+            con3 = apimDataSource.getConnection();
             String consumerKeyMappingQuery = "SELECT APPLICATION_ID FROM AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_FAULT_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_FAULTY_INVOCATION_AGG
@@ -369,6 +423,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_REQ_USR_BROW_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateUserBrowserSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -376,11 +436,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_USR_BROW_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_BROWSER_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, AGG_COUNT, AGG_TIMESTAMP, "
@@ -428,6 +485,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_REQ_GEO_LOC_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateGeoLocationSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -435,11 +498,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQ_GEO_LOC_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_GEO_LOCATION_AGG
                     + "_DAYS(apiName, apiVersion, apiCreator, apiCreatorTenantDomain, totalCount, AGG_TIMESTAMP, "
@@ -486,6 +546,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_EXE_TME_DAY_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateExecutionTimeDaySummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -493,11 +559,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TME_DAY_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_DAYS(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
@@ -557,6 +620,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_EXE_TIME_HOUR_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateExecutionTimeHourSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -564,11 +633,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_HOUR_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_HOURS(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
@@ -629,6 +695,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_EXE_TIME_MIN_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateExecutionTimeMinuteSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -636,11 +708,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_EXE_TIME_MIN_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_EXEC_TIME_AGG
                     + "_MINUTES(apiName, apiVersion, apiCreatorTenantDomain, apiCreator, AGG_SUM_responseTime, apiContext, "
@@ -702,6 +771,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_THROTTLED_OUT_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateThrottledOutSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -709,11 +784,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_THROTTLED_OUT_AGG
                     + "_DAYS(apiName, apiVersion, apiContext, apiCreator, applicationName, apiCreatorTenantDomain, AGG_TIMESTAMP, "
@@ -764,6 +836,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_THROTTLED_OUT_SUMMARY table for success counts
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateThrottledOutRequestCountSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -771,11 +849,8 @@ public class DBManagerImpl implements DBManager {
         PreparedStatement statement2 = null;
         ResultSet resultSetRetrieved = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
             String retrieveQuery = "SELECT api, api_version, apiPublisher, applicationName, tenantDomain, "
                     + "sum(throttleout_count) as throttledCount, sum(success_request_count) as successCount, year, month, day, time FROM " +
                     APIMStatMigrationConstants.API_THROTTLED_OUT_SUMMARY + " group by api, api_version, apiPublisher, "
@@ -825,6 +900,12 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method migrates the data related to the API_REQUEST_SUMMARY table
+     *
+     * @throws APIMStatMigrationException on error
+     */
+    @Override
     public void migrateRequestSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
@@ -835,13 +916,9 @@ public class DBManagerImpl implements DBManager {
         ResultSet resultSetRetrieved = null;
         ResultSet resultSetFromAMDB = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            con1 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/dasDatabase?autoReconnect=true", "root", "tharika@123");
-            con2 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/tstatdb?autoReconnect=true", "root", "tharika@123");
-            con3 = DriverManager
-                    .getConnection("jdbc:mysql://localhost:3306/AM_DB?autoReconnect=true", "root", "tharika@123");
+            con1 = oldStatsDataSource.getConnection();
+            con2 = newStatsDataSource.getConnection();
+            con3 = apimDataSource.getConnection();
             String consumerKeyMappingQuery = "SELECT APPLICATION_ID FROM AM_APPLICATION_KEY_MAPPING WHERE CONSUMER_KEY=?";
             String retrieveQuery = "SELECT * FROM " + APIMStatMigrationConstants.API_REQUEST_SUMMARY;
             String insertQuery = "INSERT INTO " + APIMStatMigrationConstants.API_USER_PER_APP_AGG
@@ -945,24 +1022,48 @@ public class DBManagerImpl implements DBManager {
         }
     }
 
+    /**
+     * This method returns the date of form yyyy-MM-dd HH:mm as a timestamp
+     *
+     * @param date date as a string
+     * @return the date in milliseconds
+     */
     private static long getTimestamp(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
         return dateTime.getMillis();
     }
 
+    /**
+     * This method returns the date of form yyyy-M-dd as a timestamp
+     *
+     * @param date date as a string
+     * @return the date in milliseconds
+     */
     private static long getTimestampOfDay(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_DAY_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
         return dateTime.getMillis();
     }
 
+    /**
+     * This method returns the date of form yyyy-M-dd HH as a timestamp
+     *
+     * @param date date as a string
+     * @return the date in milliseconds
+     */
     private static long getTimestampOfHour(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_HOUR_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
         return dateTime.getMillis();
     }
 
+    /**
+     * This method returns the date of form yyyy-MM-dd HH:mm as a timestamp
+     *
+     * @param date date as a string
+     * @return the date in milliseconds
+     */
     private static long getTimestampOfMinute(String date) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(APIMStatMigrationConstants.TIMESTAMP_MINUTE_PATTERN);
         DateTime dateTime = formatter.parseDateTime(date);
