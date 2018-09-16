@@ -27,7 +27,7 @@ import org.wso2.carbon.apimgt.stat.migration.APIMStatMigrationException;
 import org.wso2.carbon.apimgt.stat.migration.client.APIMStatMigrationClient;
 import org.wso2.carbon.apimgt.stat.migration.client.MigrationClient;
 import org.wso2.carbon.apimgt.stat.migration.util.APIMStatMigrationConstants;
-import org.wso2.carbon.apimgt.stat.migration.util.DatabaseManager;
+import org.wso2.carbon.apimgt.stat.migration.util.DBManagerImpl;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -78,7 +78,6 @@ public class APIMStatMigrationServiceComponent {
             MigrationClient migrateStatDB = new APIMStatMigrationClient();
 
             if (isStatMigration) {
-                DatabaseManager.initialize();
                 migrateStatDB.statDbMigration();
                 log.info("Stat migration completed");
             }

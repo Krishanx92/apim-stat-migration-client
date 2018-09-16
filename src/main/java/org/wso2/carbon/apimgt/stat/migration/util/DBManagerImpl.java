@@ -31,15 +31,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DatabaseManager {
+public class DBManagerImpl implements DBManager {
 
-    private static final Log log = LogFactory.getLog(DatabaseManager.class);
+    private static final Log log = LogFactory.getLog(DBManagerImpl.class);
 
-    public static void initialize() throws APIMStatMigrationException {
+    public void initialize() throws APIMStatMigrationException {
 
     }
 
-    public static void migrateDestinationSummaryTable() throws APIMStatMigrationException {
+    public void migrateDestinationSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -98,7 +98,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateResourceUsageSummaryTable() throws APIMStatMigrationException {
+    public void migrateResourceUsageSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         Connection con3 = null;
@@ -183,7 +183,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateVersionUsageSummaryTable() throws APIMStatMigrationException {
+    public void migrateVersionUsageSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -240,7 +240,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateLastAccessTimeSummaryTable() throws APIMStatMigrationException {
+    public void migrateLastAccessTimeSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -289,7 +289,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateFaultSummaryTable() throws APIMStatMigrationException {
+    public void migrateFaultSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         Connection con3 = null;
@@ -369,7 +369,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateUserBrowserSummaryTable() throws APIMStatMigrationException {
+    public void migrateUserBrowserSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -428,7 +428,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateGeoLocationSummaryTable() throws APIMStatMigrationException {
+    public void migrateGeoLocationSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -486,7 +486,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateExecutionTimeDaySummaryTable() throws APIMStatMigrationException {
+    public void migrateExecutionTimeDaySummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -557,7 +557,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateExecutionTimeHourSummaryTable() throws APIMStatMigrationException {
+    public void migrateExecutionTimeHourSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -629,7 +629,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateExecutionTimeMinuteSummaryTable() throws APIMStatMigrationException {
+    public void migrateExecutionTimeMinuteSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -702,7 +702,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateThrottledOutSummaryTable() throws APIMStatMigrationException {
+    public void migrateThrottledOutSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -764,7 +764,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateThrottledOutRequestCountSummaryTable() throws APIMStatMigrationException {
+    public void migrateThrottledOutRequestCountSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         PreparedStatement statement1 = null;
@@ -825,7 +825,7 @@ public class DatabaseManager {
         }
     }
 
-    public static void migrateRequestSummaryTable() throws APIMStatMigrationException {
+    public void migrateRequestSummaryTable() throws APIMStatMigrationException {
         Connection con1 = null;
         Connection con2 = null;
         Connection con3 = null;

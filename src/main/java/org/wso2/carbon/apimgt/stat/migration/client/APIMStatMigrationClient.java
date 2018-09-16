@@ -21,7 +21,8 @@ package org.wso2.carbon.apimgt.stat.migration.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.stat.migration.APIMStatMigrationException;
-import org.wso2.carbon.apimgt.stat.migration.util.DatabaseManager;
+import org.wso2.carbon.apimgt.stat.migration.util.DBManager;
+import org.wso2.carbon.apimgt.stat.migration.util.DBManagerImpl;
 
 public class APIMStatMigrationClient implements MigrationClient {
 
@@ -30,44 +31,45 @@ public class APIMStatMigrationClient implements MigrationClient {
     @Override
     public void statDbMigration() throws APIMStatMigrationException {
         log.info("Started stat db migration......");
+        DBManager dbManager = new DBManagerImpl();
         log.info("----------------Started migrating Destination Summary table------------------");
-        DatabaseManager.migrateDestinationSummaryTable();
+        dbManager.migrateDestinationSummaryTable();
         log.info("----------------Completed migrating Destination Summary table------------------");
         log.info("----------------Started migrating Resource usage summary table------------------");
-        DatabaseManager.migrateResourceUsageSummaryTable();
+        dbManager.migrateResourceUsageSummaryTable();
         log.info("----------------Completed migrating Resource usage summary table------------------");
         log.info("----------------Started migrating Version usage summary table------------------");
-        DatabaseManager.migrateVersionUsageSummaryTable();
+        dbManager.migrateVersionUsageSummaryTable();
         log.info("----------------Completed migrating Version usage summary table------------------");
         log.info("----------------Started migrating Last access time summary table------------------");
-        DatabaseManager.migrateLastAccessTimeSummaryTable();
+        dbManager.migrateLastAccessTimeSummaryTable();
         log.info("----------------Completed migrating Last access time summary table------------------");
         log.info("----------------Started migrating Fault summary table------------------");
-        DatabaseManager.migrateFaultSummaryTable();
+        dbManager.migrateFaultSummaryTable();
         log.info("----------------Completed migrating Fault summary table------------------");
         log.info("----------------Started migrating User browser summary table------------------");
-        DatabaseManager.migrateUserBrowserSummaryTable();
+        dbManager.migrateUserBrowserSummaryTable();
         log.info("----------------Completed migrating User browser summary table------------------");
         log.info("----------------Started migrating Geo location summary table------------------");
-        DatabaseManager.migrateGeoLocationSummaryTable();
+        dbManager.migrateGeoLocationSummaryTable();
         log.info("----------------Completed migrating Geo location summary table------------------");
         log.info("----------------Started migrating Execution time day summary table------------------");
-        DatabaseManager.migrateExecutionTimeDaySummaryTable();
+        dbManager.migrateExecutionTimeDaySummaryTable();
         log.info("----------------Completed migrating Execution time day summary table------------------");
         log.info("----------------Started migrating Execution time hour summary table------------------");
-        DatabaseManager.migrateExecutionTimeHourSummaryTable();
+        dbManager.migrateExecutionTimeHourSummaryTable();
         log.info("----------------Completed migrating Execution time hour summary table------------------");
         log.info("----------------Started migrating Execution time minute summary table------------------");
-        DatabaseManager.migrateExecutionTimeMinuteSummaryTable();
+        dbManager.migrateExecutionTimeMinuteSummaryTable();
         log.info("----------------Completed migrating Execution time minute summary table------------------");
         log.info("----------------Started migrating Throttled out summary table------------------");
-        DatabaseManager.migrateThrottledOutSummaryTable();
+        dbManager.migrateThrottledOutSummaryTable();
         log.info("----------------Completed migrating Throttled out summary table------------------");
         log.info("----------------Started migrating Throttled out request count summary table------------------");
-        DatabaseManager.migrateThrottledOutRequestCountSummaryTable();
+        dbManager.migrateThrottledOutRequestCountSummaryTable();
         log.info("----------------Completed migrating Throttled out request count summary table------------------");
         log.info("----------------Started migrating Request summary table------------------");
-        DatabaseManager.migrateRequestSummaryTable();
+        dbManager.migrateRequestSummaryTable();
         log.info("----------------Completed migrating Request summary table------------------");
         log.info("Completed stat db migration successfully.....");
     }
